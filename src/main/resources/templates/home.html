@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${title})}"></head>
+<body>
+
+<nav th:replace="~{fragments :: navbar('home')}"></nav>
+
+<main class="container py-5 my-md-4">
+    <!-- Hero Banner Section -->
+    <div class="row align-items-center mb-5 g-5">
+        <div class="col-lg-6 text-center text-lg-start">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 mb-3 px-3 py-2 fs-7 fw-semibold">
+                <i class="bi bi-stars me-1"></i> Powering Next-Gen HR Recruitment
+            </span>
+            <h1 class="display-4 fw-extrabold mb-3 text-white">
+                AI-Powered <br>
+                <span class="text-transparent bg-clip-text bg-gradient" style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    Resume Analyzer
+                </span> <br>
+                & Job Matcher
+            </h1>
+            <p class="lead text-muted mb-4 fs-5" style="line-height: 1.6;">
+                Instantly scan candidate resumes using Apache PDFBox, match key technical capabilities with job descriptions, run deep gap analysis, and generate smart up-skilling roadmaps in seconds.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+                <a href="/upload" class="btn btn-glow-primary px-4 py-3">
+                    <i class="bi bi-file-earmark-arrow-up-fill me-2"></i> Upload Resumes
+                </a>
+                <a href="/dashboard-view" class="btn btn-glow-secondary px-4 py-3">
+                    <i class="bi bi-speedometer2 me-2"></i> View Dashboard
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="position-relative">
+                <!-- Decorative background elements -->
+                <div class="position-absolute bg-primary rounded-circle filter-blur" style="width: 250px; height: 250px; opacity: 0.15; top: -30px; left: -30px; filter: blur(40px);"></div>
+                <div class="position-absolute bg-accent rounded-circle filter-blur" style="width: 250px; height: 250px; opacity: 0.15; bottom: -30px; right: -30px; filter: blur(40px);"></div>
+                
+                <div class="glass-card position-relative z-1 p-5 text-center">
+                    <i class="bi bi-shield-check text-accent display-1 mb-4 d-block"></i>
+                    <h3 class="h4 mb-3 text-white">Ready for Enterprise Hiring</h3>
+                    <p class="text-muted small px-md-4 mb-4">
+                        Automate screening by loading PDF CVs, creating job specifications, mapping candidate profiles, and exporting professional evaluation PDFs.
+                    </p>
+                    <hr class="border-secondary border-opacity-20 my-4">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h4 class="text-primary mb-0 fw-bold">100%</h4>
+                            <span class="text-muted small" style="font-size: 0.75rem;">Automated</span>
+                        </div>
+                        <div class="col-4 border-start border-secondary border-opacity-25">
+                            <h4 class="text-accent mb-0 fw-bold">0s</h4>
+                            <span class="text-muted small" style="font-size: 0.75rem;">Latency</span>
+                        </div>
+                        <div class="col-4 border-start border-secondary border-opacity-25">
+                            <h4 class="text-success mb-0 fw-bold">PDF</h4>
+                            <span class="text-muted small" style="font-size: 0.75rem;">Exporter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Features Grid -->
+    <h2 class="text-center mb-4 mt-5 fw-bold">System Capabilities</h2>
+    <p class="text-center text-muted mb-5 col-md-8 mx-auto">
+        Designed as a complete full-stack recruitment tool, combining heavy-duty PDF parsing services with intelligent skill comparison algorithms.
+    </p>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Feature 1 -->
+        <div class="col-md-4 col-sm-6">
+            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 d-inline-block mb-4">
+                        <i class="bi bi-file-pdf fs-3"></i>
+                    </div>
+                    <h3 class="h5 text-white mb-3">Apache PDFBox Extraction</h3>
+                    <p class="text-muted small">
+                        Upload raw PDF resumes. The system reads, strips, and cleans the text structure to process candidate names, emails, and credentials automatically.
+                    </p>
+                </div>
+                <a href="/upload" class="text-primary text-decoration-none small fw-semibold mt-3">Upload Candidate <i class="bi bi-chevron-right small"></i></a>
+            </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="col-md-4 col-sm-6">
+            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="bg-accent bg-opacity-10 text-accent rounded-3 p-3 d-inline-block mb-4">
+                        <i class="bi bi-calculator fs-3"></i>
+                    </div>
+                    <h3 class="h5 text-white mb-3">Skill Matching Engine</h3>
+                    <p class="text-muted small">
+                        Compares applicant competencies against job-required skills. Calculates match percentage metrics using the core mathematical formula.
+                    </p>
+                </div>
+                <a href="/analysis" class="text-accent text-decoration-none small fw-semibold mt-3">Analyze Candidate <i class="bi bi-chevron-right small"></i></a>
+            </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="col-md-4 col-sm-6">
+            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-3 d-inline-block mb-4">
+                        <i class="bi bi-lightbulb fs-3"></i>
+                    </div>
+                    <h3 class="h5 text-white mb-3">AI Gap Analysis</h3>
+                    <p class="text-muted small">
+                        Triggers logic to detail missing qualifications. Generates actionable study paths, tutorials, and certifications to bridge hiring gaps.
+                    </p>
+                </div>
+                <a href="/jobs" class="text-success text-decoration-none small fw-semibold mt-3">Manage Jobs <i class="bi bi-chevron-right small"></i></a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

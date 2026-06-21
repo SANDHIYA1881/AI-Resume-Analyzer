@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${title})}"></head>
+<body>
+
+<nav th:replace="~{fragments :: navbar('dashboard')}"></nav>
+
+<main class="container py-5">
+    <h1 class="h3 text-white mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>Recruitment Dashboard</h1>
+
+    <!-- 1. Stats Counter Cards -->
+    <div class="row g-4 mb-5">
+        <!-- Card 1: Candidates -->
+        <div class="col-md-4">
+            <div class="glass-card text-center d-flex flex-column align-items-center justify-content-center py-4">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                    <i class="bi bi-people-fill fs-3"></i>
+                </div>
+                <span class="text-muted small fw-semibold uppercase tracking-wider mb-1">TOTAL CANDIDATES</span>
+                <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${totalCandidates}">0</h2>
+                <a href="/upload" class="text-primary text-decoration-none small mt-2 d-inline-block">Manage Directory <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Card 2: Jobs -->
+        <div class="col-md-4">
+            <div class="glass-card text-center d-flex flex-column align-items-center justify-content-center py-4">
+                <div class="bg-accent bg-opacity-10 text-accent rounded-circle p-3 mb-3">
+                    <i class="bi bi-briefcase-fill fs-3"></i>
+                </div>
+                <span class="text-muted small fw-semibold uppercase tracking-wider mb-1">ACTIVE JOBS</span>
+                <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${totalJobs}">0</h2>
+                <a href="/jobs" class="text-accent text-decoration-none small mt-2 d-inline-block">Manage Job Posts <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Card 3: Avg Match -->
+        <div class="col-md-4">
+            <div class="glass-card text-center d-flex flex-column align-items-center justify-content-center py-4">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 mb-3">
+                    <i class="bi bi-percent fs-3"></i>
+                </div>
+                <span class="text-muted small fw-semibold uppercase tracking-wider mb-1">AVG MATCH FIT</span>
+                <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${averageMatchPercentage + '%'}">0%</h2>
+                <a href="/analysis" class="text-success text-decoration-none small mt-2 d-inline-block">Run Evaluation <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Charts & Top Candidates Row -->
+    <div class="row g-4">
+        <!-- Visual Charts Column -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <h3 class="h5 text-white mb-4"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Match Index Ranking Visualization</h3>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Matching Candidates Table Column -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100 d-flex flex-column">
+                <h3 class="h5 text-white mb-4"><i class="bi bi-award-fill text-accent me-2"></i>Top Matching Candidates (Ranking)</h3>
+                
+                <div class="table-responsive flex-grow-1">
+                    <table class="table table-glass align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate</th>
+                                <th>Match Score</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(topCandidates)}">
+                                <td colspan="4" class="text-center py-5 text-muted small">
+                                    <i class="bi bi-bar-chart d-block fs-3 mb-2"></i>
+                                    No evaluations run yet. Compute candidate matching to rank profiles.
+                                </td>
+                            </tr>
+                            <tr th:each="a, state : ${topCandidates}">
+                                <td>
+                                    <span class="badge rounded-circle p-2 px-3 fw-bold" 
+                                          th:classappend="${state.index == 0} ? 'bg-warning text-dark' : (${state.index == 1} ? 'bg-secondary text-white' : (${state.index == 2} ? 'bg-danger text-white' : 'bg-dark text-muted border border-secondary border-opacity-25'))" 
+                                          th:text="${state.count}">1</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-white" th:text="${a.candidate.name}">Jane Doe</div>
+                                    <div class="text-muted small" th:text="${a.job.jobTitle}">Java Architect</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; max-width: 80px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 th:style="'width: ' + ${a.matchPercentage} + '%; background-color: var(--primary); border-radius: 3px;'"
+                                                 th:aria-valuenow="${a.matchPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="fw-bold text-white small" th:text="${a.matchPercentage + '%'}">80%</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <a th:href="@{/analysis(candidateId=${a.candidate.id}, jobId=${a.job.id})}" class="btn btn-sm btn-glow-secondary p-1 px-2" title="View details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{/analysis/{id}/download(id=${a.id})}" class="btn btn-sm btn-glow-primary p-1 px-2" title="Download Report">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+<!-- ChartJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function() {
+    // Inject top candidates list directly from Thymeleaf
+    const topCandidates = /*[[${topCandidates}]]*/ [];
+
+    const ctx = document.getElementById('rankingChart').getContext('2d');
+    
+    if (!topCandidates || topCandidates.length === 0) {
+        // Draw empty message text on Canvas
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = "14px 'Plus Jakarta Sans'";
+        ctx.textAlign = "center";
+        ctx.fillText("No analysis data available to render charts", 250, 160);
+        return;
+    }
+
+    const labels = topCandidates.map(item => {
+        // Truncate name if too long
+        let name = item.candidate.name;
+        return name.length > 12 ? name.substring(0, 10) + '..' : name;
+    });
+    
+    const scores = topCandidates.map(item => item.matchPercentage);
+    const jobs = topCandidates.map(item => item.job.jobTitle);
+
+    // Create dynamic Indigo-Teal gradient for bars
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, '#6366f1'); // Indigo
+    gradient.addColorStop(1, '#06b6d4'); // Cyan
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Match Percentage',
+                data: scores,
+                backgroundColor: gradient,
+                borderRadius: 8,
+                borderSkipped: false,
+                barThickness: 32
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#9ca3af',
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        afterLabel: function(context) {
+                            const idx = context.dataIndex;
+                            return 'Target Job: ' + jobs[idx];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#9ca3af',
+                        font: {
+                            family: 'Plus Jakarta Sans',
+                            size: 11
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.04)'
+                    },
+                    ticks: {
+                        color: '#9ca3af',
+                        font: {
+                            family: 'Plus Jakarta Sans',
+                            size: 11
+                        },
+                        callback: function(value) {
+                            return value + "%";
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${title})}"></head>
+<body>
+
+<nav th:replace="~{fragments :: navbar('upload')}"></nav>
+
+<main class="container py-5">
+    <div class="row g-4">
+        <!-- Upload Form Column -->
+        <div class="col-lg-5">
+            <div class="glass-card">
+                <h2 class="h4 text-white mb-3"><i class="bi bi-file-earmark-arrow-up text-primary me-2"></i>Upload Candidate Resume</h2>
+                <p class="text-muted small mb-4">
+                    Upload a PDF resume. The system will parse candidate metadata and skills. You can override the name and email below, or leave them empty for auto-extraction.
+                </p>
+
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-muted small fw-semibold">Candidate Name (Optional)</label>
+                        <input type="text" class="form-control form-glass py-2" id="name" name="name" placeholder="John Doe">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-muted small fw-semibold">Candidate Email (Optional)</label>
+                        <input type="email" class="form-control form-glass py-2" id="email" name="email" placeholder="johndoe@example.com">
+                    </div>
+
+                    <!-- Custom Drag & Drop File Upload -->
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-semibold">Resume PDF (Required)</label>
+                        <div class="upload-dropzone" id="dropzone">
+                            <i class="bi bi-file-earmark-pdf-fill mb-2 d-block"></i>
+                            <span class="text-white d-block mb-1 font-heading fw-semibold" id="dropzoneText">Drag and drop PDF here</span>
+                            <span class="text-muted small">or click to browse local files</span>
+                            <input type="file" id="fileInput" name="file" accept=".pdf" class="d-none">
+                        </div>
+                        <div id="fileSelectedFeedback" class="text-accent small mt-2 d-none">
+                            <i class="bi bi-check-circle-fill me-1"></i> <span id="fileNameSpan"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-glow-primary w-100 py-2.5" id="uploadBtn">
+                        <span id="btnText"><i class="bi bi-cloud-arrow-up-fill me-2"></i>Parse & Save Resume</span>
+                        <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </form>
+
+                <div id="alertBox" class="alert mt-3 d-none" role="alert"></div>
+            </div>
+        </div>
+
+        <!-- Candidate Directory Column -->
+        <div class="col-lg-7">
+            <div class="glass-card h-100 d-flex flex-column">
+                <h2 class="h4 text-white mb-3"><i class="bi bi-people-fill text-accent me-2"></i>Candidate Database</h2>
+                
+                <!-- Table container with flex scroll -->
+                <div class="table-responsive flex-grow-1">
+                    <table class="table table-glass w-100 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Skills Extracted</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(candidates)}">
+                                <td colspan="3" class="text-center py-5 text-muted small">
+                                    <i class="bi bi-info-circle d-block fs-3 mb-2"></i>
+                                    No candidates uploaded yet. Use the upload panel to get started.
+                                </td>
+                            </tr>
+                            <tr th:each="c : ${candidates}">
+                                <td>
+                                    <div class="fw-bold text-white" th:text="${c.name}">John Doe</div>
+                                    <div class="text-muted small" th:text="${c.email}">john@example.com</div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <th:block th:if="${c.extractedSkills != null && !#strings.isEmpty(c.extractedSkills)}">
+                                            <span th:each="skill : ${#strings.arraySplit(c.extractedSkills, ',')}" 
+                                                  class="skill-badge skill-badge-matched" 
+                                                  th:text="${skill.trim()}">Java</span>
+                                        </th:block>
+                                        <th:block th:if="${c.extractedSkills == null || #strings.isEmpty(c.extractedSkills)}">
+                                            <span class="text-muted small italic">No skills extracted</span>
+                                        </th:block>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <a th:href="@{/analysis(candidateId=${c.id})}" class="btn btn-sm btn-glow-secondary py-1.5 px-3">
+                                        <i class="bi bi-award-fill me-1 text-accent"></i> Match
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    const dropzoneText = document.getElementById("dropzoneText");
+    const fileFeedback = document.getElementById("fileSelectedFeedback");
+    const fileNameSpan = document.getElementById("fileNameSpan");
+    const uploadForm = document.getElementById("uploadForm");
+    const alertBox = document.getElementById("alertBox");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
+
+    // Make dropzone click trigger file selector
+    dropzone.addEventListener("click", () => fileInput.click());
+
+    // File drag and drop events
+    ["dragenter", "dragover"].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+        }, false);
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+        }, false);
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0 && files[0].type === "application/pdf") {
+            fileInput.files = files;
+            updateFileFeedback(files[0].name);
+        } else {
+            showAlert("danger", "Only PDF files are allowed!");
+        }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+        if (fileInput.files.length > 0) {
+            updateFileFeedback(fileInput.files[0].name);
+        }
+    });
+
+    function updateFileFeedback(filename) {
+        fileFeedback.classList.remove("d-none");
+        fileNameSpan.textContent = filename;
+        dropzoneText.textContent = "PDF Selected";
+    }
+
+    function showAlert(type, message) {
+        alertBox.className = `alert alert-${type} mt-3`;
+        alertBox.textContent = message;
+        alertBox.classList.remove("d-none");
+    }
+
+    // Handle AJAX Form Submission
+    uploadForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        
+        if (fileInput.files.length === 0) {
+            showAlert("danger", "Please select or drop a PDF resume file!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("name", document.getElementById("name").value);
+        formData.append("email", document.getElementById("email").value);
+        formData.append("file", fileInput.files[0]);
+
+        // Show spinner and disable button
+        uploadBtn.disabled = true;
+        btnText.classList.add("d-none");
+        btnSpinner.classList.remove("d-none");
+        alertBox.classList.add("d-none");
+
+        fetch("/uploadResume", {
+            method: "POST",
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.text();
+            if (response.ok) {
+                showAlert("success", "Resume uploaded and analyzed successfully! Refreshing...");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data || "Failed to process upload.");
+            }
+        })
+        .catch(error => {
+            showAlert("danger", error.message);
+            uploadBtn.disabled = false;
+            btnText.classList.remove("d-none");
+            btnSpinner.classList.add("d-none");
+        });
+    });
+});
+</script>
+</body>
+</html>

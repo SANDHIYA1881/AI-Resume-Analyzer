@@ -1,0 +1,292 @@
+/* ===================================================================
+   Glassmorphic Design System - AI Resume Analyzer
+   =================================================================== */
+
+
+:root {
+    --bg-dark: #090d16;
+    --bg-card: rgba(17, 24, 39, 0.65);
+    --border-glass: rgba(255, 255, 255, 0.06);
+    --primary: #6366f1; /* Indigo 500 */
+    --primary-glow: rgba(99, 102, 241, 0.15);
+    --accent: #06b6d4; /* Cyan 500 */
+    --accent-glow: rgba(6, 182, 212, 0.15);
+    --text-main: #f3f4f6; /* Gray 100 */
+    --text-muted: #9ca3af; /* Gray 400 */
+    --success: #10b981; /* Emerald 500 */
+    --success-glow: rgba(16, 185, 129, 0.1);
+    --danger: #ef4444; /* Red 500 */
+    --danger-glow: rgba(239, 68, 68, 0.1);
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Glassmorphism Card Utility */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    padding: 24px;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
+}
+
+/* Custom Navigation Bar */
+.navbar-glass {
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.navbar-brand {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--text-muted) !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-main) !important;
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Buttons with Glowing Hover States */
+.btn-glow-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-glow-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    color: white;
+}
+
+.btn-glow-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-weight: 600;
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-glow-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+    color: var(--text-main);
+}
+
+/* Dropzone for Uploads */
+.upload-dropzone {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.upload-dropzone i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+}
+
+.upload-dropzone:hover i {
+    color: var(--primary);
+}
+
+/* Progress and Matches Rings/Meters */
+.match-score-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+}
+
+.match-score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--text-main);
+}
+
+/* Badges for Skills */
+.skill-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+    margin: 4px;
+    transition: all 0.2s ease;
+}
+
+.skill-badge-matched {
+    background-color: var(--success-glow);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.skill-badge-missing {
+    background-color: var(--danger-glow);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.skill-badge:hover {
+    transform: translateY(-2px);
+}
+
+/* Input Fields inside Glass Cards */
+.form-glass {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-glass:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary-glow);
+    color: var(--text-main);
+}
+
+.form-glass::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Table styles */
+.table-glass {
+    color: var(--text-main);
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.table-glass th {
+    font-family: var(--font-heading);
+    color: var(--text-muted);
+    border: none;
+    font-weight: 500;
+}
+
+.table-glass td {
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    padding: 16px;
+    vertical-align: middle;
+}
+
+.table-glass td:first-child {
+    border-left: 1px solid var(--border-glass);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.table-glass td:last-child {
+    border-right: 1px solid var(--border-glass);
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.table-glass tr {
+    transition: transform 0.2s ease;
+}
+
+.table-glass tr:hover td {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Recommendation Text Styling */
+.rec-text {
+    line-height: 1.6;
+}
+.rec-text h3 {
+    color: var(--primary);
+    margin-top: 20px;
+    font-size: 1.25rem;
+}
+.rec-text h4 {
+    color: var(--accent);
+    margin-top: 15px;
+    font-size: 1.1rem;
+}
+.rec-text ul {
+    list-style-type: square;
+    padding-left: 20px;
+}
+.rec-text li {
+    margin-bottom: 8px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

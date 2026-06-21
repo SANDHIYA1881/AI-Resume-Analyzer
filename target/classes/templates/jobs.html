@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${title})}"></head>
+<body>
+
+<nav th:replace="~{fragments :: navbar('jobs')}"></nav>
+
+<main class="container py-5">
+    <div class="row g-4">
+        <!-- Job Creation Form Column -->
+        <div class="col-lg-5">
+            <div class="glass-card">
+                <h2 class="h4 text-white mb-3"><i class="bi bi-briefcase text-primary me-2"></i>Create Job Description</h2>
+                <p class="text-muted small mb-4">
+                    Create a new job specification by defining the title and required technologies. Candidate resumes will be matched against this list.
+                </p>
+
+                <form id="jobForm">
+                    <div class="mb-3">
+                        <label for="jobTitle" class="form-label text-muted small fw-semibold">Job Title (Required)</label>
+                        <input type="text" class="form-control form-glass py-2" id="jobTitle" required placeholder="Senior Java Full Stack Engineer">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="requiredSkills" class="form-label text-muted small fw-semibold">Required Skills (Comma-separated)</label>
+                        <textarea class="form-control form-glass" id="requiredSkills" rows="4" required placeholder="Java, Spring Boot, MySQL, Docker, REST API"></textarea>
+                    </div>
+
+                    <!-- Tech Skill Helper Pills -->
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-semibold d-block">Quick Select Skills</label>
+                        <div class="d-flex flex-wrap gap-1" id="skillPillBox">
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Java">Java</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Spring Boot">Spring Boot</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Hibernate">Hibernate</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="MySQL">MySQL</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="SQL">SQL</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Python">Python</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="React">React</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Angular">Angular</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Docker">Docker</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Kubernetes">Kubernetes</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="AWS">AWS</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Azure">Azure</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="Git">Git</span>
+                            <span class="badge bg-secondary bg-opacity-25 text-white border border-secondary border-opacity-50 skill-pill-helper" style="cursor: pointer;" data-skill="REST API">REST API</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-glow-primary w-100 py-2.5" id="submitBtn">
+                        <span id="btnText"><i class="bi bi-plus-circle-fill me-2"></i>Create Job Posting</span>
+                        <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </form>
+
+                <div id="alertBox" class="alert mt-3 d-none" role="alert"></div>
+            </div>
+        </div>
+
+        <!-- Jobs Listing Column -->
+        <div class="col-lg-7">
+            <div class="glass-card h-100 d-flex flex-column">
+                <h2 class="h4 text-white mb-3"><i class="bi bi-collection-fill text-accent me-2"></i>Active Job Profiles</h2>
+                
+                <div class="table-responsive flex-grow-1">
+                    <table class="table table-glass w-100 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Required Technologies</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(jobs)}">
+                                <td colspan="3" class="text-center py-5 text-muted small">
+                                    <i class="bi bi-briefcase d-block fs-3 mb-2"></i>
+                                    No job postings registered. Create one on the left to start screening.
+                                </td>
+                            </tr>
+                            <tr th:each="j : ${jobs}">
+                                <td>
+                                    <div class="fw-bold text-white" th:text="${j.jobTitle}">Senior Java Dev</div>
+                                    <div class="text-muted small" th:text="${#temporals.format(j.createdAt, 'yyyy-MM-dd HH:mm')}">2026-06-20</div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span th:each="skill : ${#strings.arraySplit(j.requiredSkills, ',')}" 
+                                              class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-20" 
+                                              style="font-size: 0.8rem;" 
+                                              th:text="${skill.trim()}">Java</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <a th:href="@{/analysis(jobId=${j.id})}" class="btn btn-sm btn-glow-secondary py-1.5 px-3">
+                                        <i class="bi bi-award-fill me-1 text-accent"></i> Match
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const jobForm = document.getElementById("jobForm");
+    const skillTextArea = document.getElementById("requiredSkills");
+    const alertBox = document.getElementById("alertBox");
+    const submitBtn = document.getElementById("submitBtn");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
+    const skillPillHelpers = document.querySelectorAll(".skill-pill-helper");
+
+    // Click skill helpers to append to textarea
+    skillPillHelpers.forEach(pill => {
+        pill.addEventListener("click", () => {
+            const skillToAdd = pill.getAttribute("data-skill");
+            let currentText = skillTextArea.value.trim();
+            
+            if (currentText === "") {
+                skillTextArea.value = skillToAdd;
+            } else {
+                // Check if already present to avoid duplication
+                const skillsArray = currentText.split(",").map(s => s.trim().toLowerCase());
+                if (!skillsArray.includes(skillToAdd.toLowerCase())) {
+                    skillTextArea.value = currentText + ", " + skillToAdd;
+                }
+            }
+        });
+    });
+
+    function showAlert(type, message) {
+        alertBox.className = `alert alert-${type} mt-3`;
+        alertBox.textContent = message;
+        alertBox.classList.remove("d-none");
+    }
+
+    // Handle AJAX Form Submission
+    jobForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById("jobTitle").value.trim();
+        const skills = skillTextArea.value.trim();
+
+        if (!title || !skills) {
+            showAlert("danger", "Please fill in all required fields!");
+            return;
+        }
+
+        // Show spinner and disable button
+        submitBtn.disabled = true;
+        btnText.classList.add("d-none");
+        btnSpinner.classList.remove("d-none");
+        alertBox.classList.add("d-none");
+
+        fetch("/createJob", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                jobTitle: title,
+                requiredSkills: skills
+            })
+        })
+        .then(async response => {
+            const data = await response.text();
+            if (response.ok || response.status === 201) {
+                showAlert("success", "Job description created successfully! Refreshing...");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data || "Failed to create job posting.");
+            }
+        })
+        .catch(error => {
+            showAlert("danger", error.message);
+            submitBtn.disabled = false;
+            btnText.classList.remove("d-none");
+            btnSpinner.classList.add("d-none");
+        });
+    });
+});
+</script>
+</body>
+</html>

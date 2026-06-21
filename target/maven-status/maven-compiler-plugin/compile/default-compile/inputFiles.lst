@@ -1,0 +1,15 @@
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\service\PdfExportService.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\entity\Candidate.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\exception\GlobalExceptionHandler.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\repository\JobRepository.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\dto\DashboardDTO.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\service\ResumeParserService.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\controller\RestApiController.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\entity\Job.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\entity\Analysis.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\repository\AnalysisRepository.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\exception\ResourceNotFoundException.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\service\MatchService.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\controller\WebController.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\ResumeAnalyzerApplication.java
+C:\Users\sandh\OneDrive\Desktop\resume_project\src\main\java\com\antigravity\resumeanalyzer\repository\CandidateRepository.java

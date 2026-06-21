@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${title})}"></head>
+<body>
+
+<nav th:replace="~{fragments :: navbar('analysis')}"></nav>
+
+<main class="container py-5">
+    <div class="row g-4">
+        <!-- Input Selector Card -->
+        <div class="col-12">
+            <div class="glass-card">
+                <h2 class="h4 text-white mb-3"><i class="bi bi-cpu text-primary me-2"></i>Match Analysis Engine</h2>
+                <p class="text-muted small mb-4">
+                    Select an uploaded candidate resume and a target job profile to compute the match index and analyze skill gaps.
+                </p>
+
+                <form action="/analysis" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label for="candidateSelect" class="form-label text-muted small fw-semibold">Select Candidate</label>
+                        <select class="form-select form-glass py-2" id="candidateSelect" name="candidateId" required>
+                            <option value="" disabled th:selected="${selectedCandidateId == null}">-- Select a Candidate --</option>
+                            <option th:each="c : ${candidates}" 
+                                    th:value="${c.id}" 
+                                    th:text="${c.name + ' (' + c.email + ')'}"
+                                    th:selected="${selectedCandidateId == c.id}">John Doe (john@example.com)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="jobSelect" class="form-label text-muted small fw-semibold">Select Job Post</label>
+                        <select class="form-select form-glass py-2" id="jobSelect" name="jobId" required>
+                            <option value="" disabled th:selected="${selectedJobId == null}">-- Select a Job Post --</option>
+                            <option th:each="j : ${jobs}" 
+                                    th:value="${j.id}" 
+                                    th:text="${j.jobTitle}"
+                                    th:selected="${selectedJobId == j.id}">Senior Java Dev</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-glow-primary w-100 py-2">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Match Candidate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Analysis Results Column (When available) -->
+        <div class="col-12" th:if="${analysis != null}">
+            <div class="glass-card">
+                
+                <!-- Title Header Row -->
+                <div class="row align-items-center mb-4 g-3">
+                    <div class="col-md-8 text-center text-md-start">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 mb-2 px-3 py-1.5 fs-7 fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i> Analysis Completed
+                        </span>
+                        <h2 class="h3 text-white mb-1" th:text="${analysis.candidate.name}">Jane Doe</h2>
+                        <p class="text-muted mb-0">
+                            Evaluated against job posting: <strong class="text-accent" th:text="${analysis.job.jobTitle}">Developer</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center text-md-end">
+                        <a th:href="@{/analysis/{id}/download(id=${analysis.id})}" class="btn btn-glow-primary px-4 py-2.5">
+                            <i class="bi bi-file-earmark-pdf-fill me-2"></i> Download PDF Report
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="border-secondary border-opacity-20 my-4">
+
+                <!-- Stats, Score & Skills Gap Grid -->
+                <div class="row g-4 align-items-center mb-4">
+                    <!-- Ring Meter -->
+                    <div class="col-lg-3 text-center">
+                        <div class="match-score-ring">
+                            <!-- SVG Circular Progress Bar -->
+                            <svg class="w-100 h-100" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="8"></circle>
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--primary)" stroke-width="8" 
+                                        th:stroke-dasharray="${2 * 3.14159 * 40}" 
+                                        th:stroke-dashoffset="${2 * 3.14159 * 40 * (1 - analysis.matchPercentage / 100.0)}" 
+                                        stroke-linecap="round"
+                                        style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s ease;"></circle>
+                            </svg>
+                            <div class="match-score-text" th:text="${analysis.matchPercentage + '%'}">75%</div>
+                        </div>
+                        <div class="mt-3 text-white-50 small fw-semibold">Compatibility Match Index</div>
+                    </div>
+
+                    <!-- Skills Matrix -->
+                    <div class="col-lg-9">
+                        <div class="row g-3">
+                            <!-- Matched skills -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.08);">
+                                    <h4 class="h6 text-success fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Matched Skills</h4>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <th:block th:if="${analysis.matchedSkills != null && !#strings.isEmpty(analysis.matchedSkills)}">
+                                            <span th:each="skill : ${#strings.arraySplit(analysis.matchedSkills, ',')}" 
+                                                  class="skill-badge skill-badge-matched" 
+                                                  th:text="${skill.trim()}">Java</span>
+                                        </th:block>
+                                        <th:block th:if="${analysis.matchedSkills == null || #strings.isEmpty(analysis.matchedSkills)}">
+                                            <span class="text-muted small italic">No matching skills found</span>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Missing skills -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.08);">
+                                    <h4 class="h6 text-danger fw-bold mb-3"><i class="bi bi-x-circle-fill me-2"></i>Missing Skills (Gap)</h4>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <th:block th:if="${analysis.missingSkills != null && !#strings.isEmpty(analysis.missingSkills)}">
+                                            <span th:each="skill : ${#strings.arraySplit(analysis.missingSkills, ',')}" 
+                                                  class="skill-badge skill-badge-missing" 
+                                                  th:text="${skill.trim()}">Docker</span>
+                                        </th:block>
+                                        <th:block th:if="${analysis.missingSkills == null || #strings.isEmpty(analysis.missingSkills)}">
+                                            <span class="text-success small fw-semibold"><i class="bi bi-check2-all me-1"></i>None! Perfect Match</span>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-secondary border-opacity-20 my-4">
+
+                <!-- Recommendations Section -->
+                <div>
+                    <h3 class="h4 text-white mb-3"><i class="bi bi-lightbulb-fill text-accent me-2"></i>AI Suggestions & Upskilling Roadmap</h3>
+                    <!-- Hidden field containing the raw recommendations Markdown from the DB -->
+                    <div id="rawRecommendations" class="d-none" th:text="${analysis.recommendations}"></div>
+                    <!-- Formatted output area -->
+                    <div id="formattedRecommendations" class="rec-text p-4 rounded-3 text-white-50" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass);">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Alert Error Message -->
+        <div class="col-12" th:if="${error != null}">
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}">Error details</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const rawRecDiv = document.getElementById("rawRecommendations");
+    const formattedRecDiv = document.getElementById("formattedRecommendations");
+
+    if (rawRecDiv && formattedRecDiv) {
+        const rawMarkdown = rawRecDiv.textContent;
+        formattedRecDiv.innerHTML = parseSimpleMarkdown(rawMarkdown);
+    }
+
+    // Helper function to turn basic markdown into clean bootstrap elements
+    function parseSimpleMarkdown(md) {
+        if (!md) return "No suggestions available.";
+
+        const lines = md.split('\n');
+        let html = '';
+        let inList = false;
+
+        lines.forEach(line => {
+            let trimmed = line.trim();
+            if (trimmed === '') return;
+
+            // Header 3: ### Title
+            if (trimmed.startsWith('###')) {
+                if (inList) { html += '</ul>'; inList = false; }
+                const title = trimmed.substring(3).trim();
+                html += `<h3 class="h5 text-white mt-4 mb-3 border-bottom border-secondary border-opacity-25 pb-2"><i class="bi bi-stars text-primary me-2"></i>${title}</h3>`;
+            }
+            // Header 4: #### Subtitle
+            else if (trimmed.startsWith('####')) {
+                if (inList) { html += '</ul>'; inList = false; }
+                const subtitle = trimmed.substring(4).trim();
+                html += `<h4 class="h6 text-accent mt-3 mb-2 fw-bold">${subtitle}</h4>`;
+            }
+            // Bullet Point: - or *
+            else if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+                if (!inList) { html += '<ul class="ps-3 mb-3">'; inList = true; }
+                let bulletText = trimmed.substring(1).trim();
+                
+                // Bold formatting matching: **text**
+                bulletText = bulletText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+                html += `<li class="mb-2 text-white-50">${bulletText}</li>`;
+            }
+            // Standard Paragraph
+            else {
+                if (inList) { html += '</ul>'; inList = false; }
+                let text = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+                html += `<p class="mb-3 text-white-50">${text}</p>`;
+            }
+        });
+
+        if (inList) { html += '</ul>'; }
+        return html;
+    }
+});
+</script>
+</body>
+</html>
